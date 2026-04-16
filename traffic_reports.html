@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מחולל דיווחי תנועה</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      text-align: center;
+      font-size: 22px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      padding: 18px;
+    }
+
+    .instructions {
+      margin-bottom: 12px;
+      line-height: 1.5;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .map-wrap {
+       border: 1px solid #d8dee4;
+       border-radius: 10px;
+       background: #fafafa;
+       padding: 10px;
+       overflow: hidden;
+}
+
+    svg {
+      width: 100%;
+      height: auto;
+      min-height: 770px;
+      display: block;
+    }
+
+    .road {
+      stroke: #2b6cb0;
+      stroke-width: 10;
+      fill: none;
+      stroke-linecap: round;
+    }
+
+    .road-label {
+      font-size: 18px;
+      font-weight: bold;
+      fill: #2b6cb0;
+    }
+
+    .interchange {
+      fill: #ffffff;
+      stroke: #1f2937;
+      stroke-width: 2;
+      cursor: pointer;
+      transition: transform 0.15s ease, fill 0.15s ease;
+    }
+
+    .interchange:hover {
+      fill: #dbeafe;
+      
+    }
+
+    .interchange.selected {
+      fill: #22c55e;
+      stroke: #166534;
+    }
+
+    .label {
+      font-size: 28px;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    select,
+    textarea,
+    button {
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+      box-sizing: border-box;
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    select,
+    textarea {
+      border: 1px solid #cbd5e1;
+      padding: 10px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    button {
+      border: none;
+      padding: 11px 14px;
+      cursor: pointer;
+      background: #2563eb;
+      color: white;
+      font-weight: bold;
+    }
+
+    button.secondary {
+      background: #475569;
+    }
+
+    button:hover {
+      opacity: 0.93;
+    }
+
+    .selected-list {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 52px;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: -4px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      svg {
+        min-height: 860px;
+      }
+    }
+
+
+#countdown {
+  font-size: 42px;
+  font-weight: bold;
+  text-align: center;
+  background: #f1f5f9;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+#countdown.flash {
+  animation: flashBg 1s infinite;
+}
+
+@keyframes flashBg {
+  0%   { background: #f1f5f9; }
+  50%  { background: #f87171; }
+  100% { background: #f1f5f9; }
+}
+
+button:active {
+  background: #1e40af; /* darker blue */
+  transform: scale(0.97);
+}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    
+
+    <div class="layout">
+      <div class="panel">
+        
+
+        <div class="map-wrap">
+          <svg viewBox="0 80 900 900" preserveAspectRatio="xMidYMin meet" aria-label="מפת מחלפים אינטראקטיבית">
+
+                  <path class="road" d="M620 110 L620 1160" />
+            <path class="road" d="M280 110 L280 1160" />
+
+          
+
+            <circle class="interchange north-axis" cx="620" cy="110" r="16" data-name="שבעת הכוכבים" data-direction="north"></circle>
+            <text class="label" x="500" y="115">שבעת הכוכבים</text>
+            <circle class="interchange south-axis" cx="280" cy="110" r="16" data-name="שבעת הכוכבים" data-direction="south"></circle>
+            <text class="label" x="650" y="115"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="180" r="16" data-name="גלילות" data-direction="north"></circle>
+            <text class="label" x="500" y="185">גלילות</text>
+            <circle class="interchange south-axis" cx="280" cy="180" r="16" data-name="גלילות" data-direction="south"></circle>
+            <text class="label" x="650" y="185"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="250" r="16" data-name='קק"ל' data-direction="north"></circle>
+            <text class="label" x="500" y="255">קק"ל</text>
+            <circle class="interchange south-axis" cx="280" cy="250" r="16" data-name='קק"ל' data-direction="south"></circle>
+            <text class="label" x="650" y="255"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="320" r="16" data-name="רוקח" data-direction="north"></circle>
+            <text class="label" x="500" y="325">רוקח</text>
+            <circle class="interchange south-axis" cx="280" cy="320" r="16" data-name="רוקח" data-direction="south"></circle>
+            <text class="label" x="650" y="325"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="390" r="16" data-name="ההלכה" data-direction="north"></circle>
+            <text class="label" x="500" y="395">ההלכה</text>
+            <circle class="interchange south-axis" cx="280" cy="390" r="16" data-name="ההלכה" data-direction="south"></circle>
+            <text class="label" x="650" y="395"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="460" r="16" data-name="ארלוזורוב" data-direction="north"></circle>
+            <text class="label" x="500" y="465">ארלוזורוב</text>
+            <circle class="interchange south-axis" cx="280" cy="460" r="16" data-name="ארלוזורוב" data-direction="south"></circle>
+            <text class="label" x="650" y="465"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="530" r="16" data-name="השלום" data-direction="north"></circle>
+            <text class="label" x="500" y="535">השלום</text>
+            <circle class="interchange south-axis" cx="280" cy="530" r="16" data-name="השלום" data-direction="south"></circle>
+            <text class="label" x="650" y="535"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="600" r="16" data-name="לה גוארדיה" data-direction="north"></circle>
+            <text class="label" x="500" y="605">לה גוארדיה</text>
+            <circle class="interchange south-axis" cx="280" cy="600" r="16" data-name="לה גוארדיה" data-direction="south"></circle>
+            <text class="label" x="650" y="605"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="670" r="16" data-name="קיבוץ גלויות" data-direction="north"></circle>
+            <text class="label" x="500" y="675">קיבוץ גלויות</text>
+            <circle class="interchange south-axis" cx="280" cy="670" r="16" data-name="קיבוץ גלויות" data-direction="south"></circle>
+            <text class="label" x="650" y="675"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="740" r="16" data-name="חולון" data-direction="north"></circle>
+            <text class="label" x="500" y="745">חולון</text>
+            <circle class="interchange south-axis" cx="280" cy="740" r="16" data-name="חולון" data-direction="south"></circle>
+            <text class="label" x="650" y="745"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="810" r="16" data-name="וולפסון" data-direction="north"></circle>
+            <text class="label" x="500" y="815">וולפסון</text>
+            <circle class="interchange south-axis" cx="280" cy="810" r="16" data-name="וולפסון" data-direction="south"></circle>
+            <text class="label" x="650" y="815"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="880" r="16" data-name="דב הוז" data-direction="north"></circle>
+            <text class="label" x="500" y="885">דב הוז</text>
+            <circle class="interchange south-axis" cx="280" cy="880" r="16" data-name="דב הוז" data-direction="south"></circle>
+            <text class="label" x="650" y="885"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="950" r="16" data-name="יוספטל" data-direction="north"></circle>
+            <text class="label" x="500" y="955">יוספטל</text>
+            <circle class="interchange south-axis" cx="280" cy="950" r="16" data-name="יוספטל" data-direction="south"></circle>
+            <text class="label" x="650" y="955"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="1020" r="16" data-name="קוממיות" data-direction="north"></circle>
+            <text class="label" x="500" y="1025">קוממיות</text>
+            <circle class="interchange south-axis" cx="280" cy="1020" r="16" data-name="קוממיות" data-direction="south"></circle>
+            <text class="label" x="650" y="1025"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="1090" r="16" data-name="משה דיין" data-direction="north"></circle>
+            <text class="label" x="500" y="1095">משה דיין</text>
+            <circle class="interchange south-axis" cx="280" cy="1090" r="16" data-name="משה דיין" data-direction="south"></circle>
+            <text class="label" x="650" y="1095"></text>
+
+            <circle class="interchange north-axis" cx="620" cy="1160" r="16" data-name="מבוא איילון" data-direction="north"></circle>
+            <text class="label" x="500" y="1165">מבוא איילון</text>
+            <circle class="interchange south-axis" cx="280" cy="1160" r="16" data-name="מבוא איילון" data-direction="south"></circle>
+            <text class="label" x="650" y="1165"></text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="controls">
+  
+          
+
+          <div class="field">
+           
+            <textarea id="output" readonly></textarea>
+          </div>
+
+          <button type="button" onclick="copyReport()">העתק הודעה</button>
+          
+          <button type="button" class="secondary" onclick="clearCurrentDirection()">נקה בחירות</button>
+          
+		<div class="field">
+  		
+  		<div id="countdown" class="selected-list"></div>
+		</div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      north: [],
+      south: []
+    };
+
+    const interchangeElements = document.querySelectorAll('.interchange');
+    const currentSelectionEl = document.getElementById('currentSelection');
+    const northSegmentsEl = document.getElementById('northSegments');
+    const southSegmentsEl = document.getElementById('southSegments');
+    const outputEl = document.getElementById('output');
+
+    interchangeElements.forEach(el => {
+  el.addEventListener('click', () => {
+    const name = el.dataset.name;
+    const direction = el.dataset.direction;
+    const arr = state[direction];
+
+    const index = arr.indexOf(name);
+
+    if (index !== -1) {
+      arr.splice(index, 1);
+    } else {
+      arr.push(name);
+    }
+
+    updateView();
+  });
+});
+
+    function buildSegments(points, direction) {
+  const interchangeOrder = [
+    "שבעת הכוכבים",
+    "גלילות",
+    "קקל",
+    "רוקח",
+    "ההלכה",
+    "ארלוזורוב",
+    "השלום",
+    "לה גוארדיה",
+    "קיבוץ גלויות",
+    "חולון",
+    "וולפסון",
+    "דב הוז",
+    "יוספטל",
+    "קוממיות",
+    "משה דיין",
+    "מבוא איילון"
+  ];
+
+  const segments = [];
+
+  for (let i = 0; i < points.length; i += 2) {
+    let from = points[i];
+    let to = points[i + 1];
+
+    if (from && to) {
+      const fromIndex = interchangeOrder.indexOf(from);
+      const toIndex = interchangeOrder.indexOf(to);
+
+      if (direction === "north") {
+        // south → north (reverse order)
+        if (fromIndex < toIndex) {
+          [from, to] = [to, from];
+        }
+      } else {
+        // south direction = north → south
+        if (fromIndex > toIndex) {
+          [from, to] = [to, from];
+        }
+      }
+
+      segments.push(`מ${from} עד ${to}`);
+    }
+  }
+
+  return segments;
+}
+
+    function formatCurrent(points) {
+      if (!points.length) return 'לא נבחרו עדיין מחלפים.';
+      return points.map((p, i) => `${i + 1}. ${p}`).join(' ← ');
+    }
+
+    function updateView() {
+  const northSegments = buildSegments(state.north, "north");
+const southSegments = buildSegments(state.south, "south");
+
+  if (currentSelectionEl) {
+    const currentPoints = [...state.north, ...state.south];
+    currentSelectionEl.textContent = formatCurrent(currentPoints);
+  }
+
+  if (northSegmentsEl) {
+  northSegmentsEl.textContent = northSegments.length ? northSegments.join(', ') : 'אין דיווח';
+}
+
+if (southSegmentsEl) {
+  southSegmentsEl.textContent = southSegments.length ? southSegments.join(', ') : 'אין דיווח';
+}
+
+  if (!northSegments.length && !southSegments.length) {
+    outputEl.value = "התנועה זורמת לשני הכיוונים";
+  } else {
+    const northText = northSegments.length ? northSegments.join(', ') : "התנועה זורמת";
+    const southText = southSegments.length ? southSegments.join(', ') : "התנועה זורמת";
+
+    outputEl.value = `לצפון: ${northText}
+לדרום: ${southText}`;
+  }
+
+  refreshSelectedMarks();
+}
+
+    function refreshSelectedMarks() {
+      interchangeElements.forEach(el => el.classList.remove('selected'));
+
+      interchangeElements.forEach(el => {
+        const direction = el.dataset.direction;
+        const name = el.dataset.name;
+        if (state[direction].includes(name)) {
+          el.classList.add('selected');
+        }
+      });
+    }
+
+    function undoLast() {
+      if (state.south.length) {
+        state.south.pop();
+      } else if (state.north.length) {
+        state.north.pop();
+      }
+      updateView();
+    }
+
+    function clearCurrentDirection() {
+      state.north = [];
+      state.south = [];
+      updateView();
+    }
+
+    function clearAllSelections() {
+      state.north = [];
+      state.south = [];
+      updateView();
+    }
+
+    function copyReport() {
+      const text = outputEl.value;
+      if (!text.trim()) return;
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+      
+        }).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      alert('הדיווח הועתק');
+    }
+
+function getNextHalfHourMark() {
+  const now = new Date();
+  const next = new Date(now);
+
+  if (now.getMinutes() < 30) {
+    next.setMinutes(30, 0, 0);
+  } else {
+    next.setHours(now.getHours() + 1, 0, 0, 0);
+  }
+
+  return next;
+}
+
+function getNextMark() {
+  const now = new Date();
+  const next = new Date(now);
+
+  const minutes = now.getMinutes();
+
+  if (minutes < 25) {
+    next.setMinutes(25, 0, 0);
+  } else if (minutes < 55) {
+    next.setMinutes(55, 0, 0);
+  } else {
+    next.setHours(now.getHours() + 1, 25, 0, 0);
+  }
+
+  return next;
+}
+
+function updateCountdown() {
+  const now = new Date();
+  const target = getNextMark();
+  const diff = target - now;
+
+  const totalSeconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  const formatted =
+    String(minutes).padStart(2, '0') + ':' +
+    String(seconds).padStart(2, '0');
+
+  const countdownEl = document.getElementById('countdown');
+  if (countdownEl) {
+    countdownEl.textContent = `${formatted} `;
+
+    if (totalSeconds < 60) {
+      countdownEl.classList.add('flash');
+    } else {
+      countdownEl.classList.remove('flash');
+    }
+  }
+}
+
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+    updateView();
+  </script>
+</body>
+</html>
