@@ -390,16 +390,16 @@ button:active {
       const toIndex = interchangeOrder.indexOf(to);
 
       if (direction === "north") {
-        // south → north
-        if (fromIndex > toIndex) {
-          [from, to] = [to, from];
-        }
-      } else {
-        // north → south
-        if (fromIndex > toIndex) {
-          [from, to] = [to, from];
-        }
-      }
+  // keep southmost → northmost
+  if (fromIndex > toIndex) {
+    [from, to] = [to, from];
+  }
+} else {
+  // keep northmost → southmost
+  if (fromIndex > toIndex) {
+    [from, to] = [to, from];
+  }
+}
 
       segments.push(`מ${from} עד ${to}`);
     }
