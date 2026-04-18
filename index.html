@@ -390,12 +390,12 @@ button:active {
       const toIndex = interchangeOrder.indexOf(to);
 
       if (direction === "north") {
-  // keep southmost → northmost
-  if (fromIndex > toIndex) {
-    [from, to] = [to, from];
+
+  if (fromIndex < toIndex) {
+    [from, to] = [from, to];
   }
 } else {
-  // keep northmost → southmost
+
   if (fromIndex > toIndex) {
     [from, to] = [to, from];
   }
