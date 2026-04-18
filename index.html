@@ -351,7 +351,7 @@ button:active {
 
   <script>
 
-	let hasCopied = false;
+	
 	  
     const state = {
       north: [],
@@ -555,6 +555,8 @@ function getNextMark() {
   return next;
 }
 
+let hasCopied = false;
+	  
 function updateCountdown() {
   const now = new Date();
   const target = getNextMark();
@@ -569,33 +571,30 @@ function updateCountdown() {
     String(seconds).padStart(2, '0');
 
   const countdownEl = document.getElementById('countdown');
+  if (!countdownEl) return;
+	
+  countdownEl.textContent = `${formatted} `;
 
-  if (countdownEl) {
-    countdownEl.textContent = `${formatted} `;
-
-if (totalSeconds <= 60 && totalSeconds >= 0) {
-  countdownEl.classList.add('flash');
-} else {
-  countdownEl.classList.remove('flash');
-}
+  // Flash red during the last minute
+  if (totalSeconds <= 60 && totalSeconds >= 0) {
+    countdownEl.classList.add('flash');
+  } else {
+    countdownEl.classList.remove('flash');
+  }
 	  
-    // 🔥 AUTO COPY
-    if (totalSeconds <= 0 && !hasCopied) {
-  copyReport();
-  hasCopied = true;
+  // 🔥 AUTO COPY
+  if (totalSeconds <= 0 && !hasCopied) {
+    copyReport();
+    hasCopied = true;
+  }
 
-  countdownEl.style.background = '#16a34a'; // green flash
-  setTimeout(() => {
-    countdownEl.style.background = '';
-  }, 500);
-}
-
+	  
     // reset flag for next cycle
     if (totalSeconds > 5) {
       hasCopied = false;
     }
-  }
 }
+
 
 setInterval(updateCountdown, 1000);
 updateCountdown();
