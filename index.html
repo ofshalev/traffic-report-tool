@@ -200,6 +200,31 @@ button:active {
   transform: scale(0.97);
 }
 
+.report-item.color-red {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.report-item.color-yellow {
+  background: #fef9c3;
+  border-color: #eab308;
+}
+
+.report-item.color-green {
+  background: #dcfce7;
+  border-color: #22c55e;
+}
+
+.report-item.color-blue {
+  background: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.report-item.color-brown {
+  background: #ede0d4;
+  border-color: #9a6b47;
+}
+	  
   </style>
 </head>
 <body>
@@ -481,27 +506,24 @@ if (southSegmentsEl) {
     }
 
     function copyReport() {
-      const text = outputEl.value;
-      if (!text.trim()) return;
+  const text = outputEl.value;
+  if (!text.trim()) return;
 
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(() => {
-      
-        }).catch(() => fallbackCopy(text));
-      } else {
-        fallbackCopy(text);
-      }
-    }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
 
-    function fallbackCopy(text) {
-      const temp = document.createElement('textarea');
-      temp.value = text;
-      document.body.appendChild(temp);
-      temp.select();
-      document.execCommand('copy');
-      document.body.removeChild(temp);
-      alert('הדיווח הועתק');
-    }
+function fallbackCopy(text) {
+  const temp = document.createElement('textarea');
+  temp.value = text;
+  document.body.appendChild(temp);
+  temp.select();
+  document.execCommand('copy');
+  document.body.removeChild(temp);
+}
 
 function getNextHalfHourMark() {
   const now = new Date();
@@ -551,6 +573,12 @@ function updateCountdown() {
   if (countdownEl) {
     countdownEl.textContent = `${formatted} `;
 
+if (totalSeconds <= 60 && totalSeconds >= 0) {
+  countdownEl.classList.add('flash');
+} else {
+  countdownEl.classList.remove('flash');
+}
+	  
     // 🔥 AUTO COPY
     if (totalSeconds <= 0 && !hasCopied) {
   copyReport();
