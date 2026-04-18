@@ -354,7 +354,7 @@ button:active {
   });
 });
 
-    function buildSegments(points, direction) {
+ function buildSegments(points, direction) {
   const interchangeOrder = [
     "שבעת הכוכבים",
     "גלילות",
@@ -374,23 +374,28 @@ button:active {
     "מבוא איילון"
   ];
 
+  // Sort all selected points by actual road order first
+  const orderedPoints = [...points].sort((a, b) => {
+    return interchangeOrder.indexOf(a) - interchangeOrder.indexOf(b);
+  });
+
   const segments = [];
 
-  for (let i = 0; i < points.length; i += 2) {
-    let from = points[i];
-    let to = points[i + 1];
+  for (let i = 0; i < orderedPoints.length; i += 2) {
+    let from = orderedPoints[i];
+    let to = orderedPoints[i + 1];
 
     if (from && to) {
       const fromIndex = interchangeOrder.indexOf(from);
       const toIndex = interchangeOrder.indexOf(to);
 
       if (direction === "north") {
-        // south → north (reverse order)
+        // south → north
         if (fromIndex < toIndex) {
           [from, to] = [to, from];
         }
       } else {
-        // south direction = north → south
+        // north → south
         if (fromIndex > toIndex) {
           [from, to] = [to, from];
         }
