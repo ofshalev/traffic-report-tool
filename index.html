@@ -391,7 +391,7 @@ button:active {
 
       if (direction === "north") {
         // south → north
-        if (fromIndex < toIndex) {
+        if (fromIndex > toIndex) {
           [from, to] = [to, from];
         }
       } else {
