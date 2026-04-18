@@ -229,7 +229,7 @@ button:active {
             <text class="label" x="650" y="185"></text>
 
             <circle class="interchange north-axis" cx="620" cy="250" r="16" data-name='קק"ל' data-direction="north"></circle>
-            <text class="label" x="500" y="255">קק"ל</text>
+            <text class="label" x="500" y="255">קקל</text>
             <circle class="interchange south-axis" cx="280" cy="250" r="16" data-name='קק"ל' data-direction="south"></circle>
             <text class="label" x="650" y="255"></text>
 
@@ -306,14 +306,13 @@ button:active {
   
           
 
-          <div class="field">
-           
-            <textarea id="output" readonly></textarea>
-          </div>
+        <div class="field">  
+        <textarea id="output" readonly></textarea>
+        </div>
 
-          <button type="button" onclick="copyReport()">העתק הודעה</button>
+        <button type="button" onclick="copyReport()">העתק הודעה</button>
           
-          <button type="button" class="secondary" onclick="clearCurrentDirection()">נקה בחירות</button>
+        <button type="button" class="secondary" onclick="clearCurrentDirection()">נקה בחירות</button>
           
 		<div class="field">
   		
@@ -338,7 +337,7 @@ button:active {
     const outputEl = document.getElementById('output');
 
     interchangeElements.forEach(el => {
-  el.addEventListener('click', () => {
+  	el.addEventListener('click', () => {
     const name = el.dataset.name;
     const direction = el.dataset.direction;
     const arr = state[direction];
