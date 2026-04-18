@@ -325,6 +325,9 @@ button:active {
   </div>
 
   <script>
+
+	let hasCopied = false;
+	  
     const state = {
       north: [],
       south: []
@@ -544,13 +547,24 @@ function updateCountdown() {
     String(seconds).padStart(2, '0');
 
   const countdownEl = document.getElementById('countdown');
-  if (countdownEl) {
-    countdownEl.textContent = `${formatted} `;
 
-    if (totalSeconds < 60) {
-      countdownEl.classList.add('flash');
-    } else {
-      countdownEl.classList.remove('flash');
+  if (countdownEl) {
+    countdownEl.textContent = `${formatted} לעדכון הבא`;
+
+    // 🔥 AUTO COPY
+    if (totalSeconds <= 0 && !hasCopied) {
+  copyReport();
+  hasCopied = true;
+
+  countdownEl.style.background = '#16a34a'; // green flash
+  setTimeout(() => {
+    countdownEl.style.background = '';
+  }, 500);
+}
+
+    // reset flag for next cycle
+    if (totalSeconds > 5) {
+      hasCopied = false;
     }
   }
 }
