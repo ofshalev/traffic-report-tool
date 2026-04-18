@@ -389,16 +389,21 @@ button:active {
     let from, to;
 
     if (direction === "north") {
-      // southbound order reversed -> southmost to northmost
+      // northbound: southmost -> northmost
       from = second;
       to = first;
     } else {
-      // northmost to southmost
+      // southbound: northmost -> southmost
       from = first;
       to = second;
     }
 
     segments.push(`מ${from} עד ${to}`);
+  }
+
+  // For northbound, show the southern jam first
+  if (direction === "north") {
+    segments.reverse();
   }
 
   return segments;
