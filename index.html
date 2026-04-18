@@ -224,6 +224,25 @@ button:active {
   background: #ede0d4;
   border-color: #9a6b47;
 }
+
+
+	  .flash-red {
+  animation: softFlash 1.2s infinite;
+}
+
+@keyframes softFlash {
+  0%, 100% {
+    background-color: #ffe5e5;
+  }
+  50% {
+    background-color: #ff4d4d;
+  }
+}
+
+	  .copied {
+  outline: 3px solid #4CAF50;
+  transition: outline 0.2s;
+}
 	  
   </style>
 </head>
@@ -595,6 +614,15 @@ function updateCountdown() {
     }
 }
 
+	  reportElement.addEventListener("click", () => {
+  copyToClipboard(text);
+
+  reportElement.classList.add("copied");
+
+  setTimeout(() => {
+    reportElement.classList.remove("copied");
+  }, 800);
+});
 
 setInterval(updateCountdown, 1000);
 updateCountdown();
