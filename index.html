@@ -374,7 +374,6 @@ button:active {
     "מבוא איילון"
   ];
 
-  // Sort all selected points by actual road order first
   const orderedPoints = [...points].sort((a, b) => {
     return interchangeOrder.indexOf(a) - interchangeOrder.indexOf(b);
   });
@@ -382,27 +381,24 @@ button:active {
   const segments = [];
 
   for (let i = 0; i < orderedPoints.length; i += 2) {
-    let from = orderedPoints[i];
-    let to = orderedPoints[i + 1];
+    const first = orderedPoints[i];
+    const second = orderedPoints[i + 1];
 
-    if (from && to) {
-      const fromIndex = interchangeOrder.indexOf(from);
-      const toIndex = interchangeOrder.indexOf(to);
+    if (!first || !second) continue;
 
-      if (direction === "north") {
+    let from, to;
 
-  if (fromIndex < toIndex) {
-    [from, to] = [from, to];
-  }
-} else {
-
-  if (fromIndex > toIndex) {
-    [from, to] = [to, from];
-  }
-}
-
-      segments.push(`מ${from} עד ${to}`);
+    if (direction === "north") {
+      // southbound order reversed -> southmost to northmost
+      from = second;
+      to = first;
+    } else {
+      // northmost to southmost
+      from = first;
+      to = second;
     }
+
+    segments.push(`מ${from} עד ${to}`);
   }
 
   return segments;
@@ -415,7 +411,7 @@ button:active {
 
     function updateView() {
   const northSegments = buildSegments(state.north, "north");
-const southSegments = buildSegments(state.south, "south");
+  const southSegments = buildSegments(state.south, "south");
 
   if (currentSelectionEl) {
     const currentPoints = [...state.north, ...state.south];
